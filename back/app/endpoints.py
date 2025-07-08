@@ -9,6 +9,7 @@ from app.models import Session
 from app.dependencies import get_db, get_redis
 
 router = APIRouter()
+clients = {}
 
 
 @router.get("/")
@@ -25,15 +26,12 @@ async def create_session(db=Depends(get_db)):
     return {"session_id": session.id}
 
 
-clients = {}
-
-
 @router.websocket("/ws/{session_id}")
 async def websocket_endpoint(
     websocket: WebSocket, session_id: str, redis=Depends(get_redis)
 ):
     await websocket.accept()
-    
+
     if session_id not in clients:
         clients[session_id] = set()
     clients[session_id].add(websocket)
