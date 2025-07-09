@@ -1,7 +1,19 @@
 {
   "files": [],
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": false
+  },
   "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ],
+  "include": [
+    "src/**/*",
+    "src/vite-env.d.ts"
   ]
 }
