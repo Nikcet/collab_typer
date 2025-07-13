@@ -5,8 +5,8 @@ from fastapi.websockets import WebSocket, WebSocketState, WebSocketDisconnect
 from sqlmodel import select
 
 from app import logger
-from app.models import Session
-from app.dependencies import get_db, get_redis
+from app.dependencies import get_redis
+from app.database import get_session
 
 router = APIRouter()
 clients = {}
@@ -18,11 +18,8 @@ async def root():
 
 
 @router.post("/session")
-async def create_session(db=Depends(get_db)):
-    session = Session()
-    db.add(session)
-    db.commit()
-    db.refresh(session)
+async def create_session():
+    session = get_session()
     return {"session_id": session.id}
 
 
@@ -31,7 +28,7 @@ async def websocket_endpoint(
     websocket: WebSocket, session_id: str, redis=Depends(get_redis)
 ):
     await websocket.accept()
-
+    print(session_id)
     if session_id not in clients:
         clients[session_id] = set()
     clients[session_id].add(websocket)
