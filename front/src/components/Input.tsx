@@ -1,13 +1,35 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TextField, Box } from '@mui/material';
 import type { ChangeEvent } from 'react';
+import { api } from '../services';
+
+import useDebouncedValue from '../hooks/useDebouncedValue';
 
 function InputField() {
     const [value, setValue] = useState('');
+    const [sessionId, setSessionId] = useState('');
 
-    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setValue(event.target.value);
-    };
+    // useEffect(() => {
+    //     api.createSession()
+    //         .then((data) => {
+    //             if (!data.session_id) return;
+
+    //             setSessionId(data.session_id);
+    //         })
+    //         .catch(err => err)
+    // }, [])
+
+    // const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    //     setValue(useDebouncedValue(event.target.value, 5000));
+    // };
+
+    // useEffect(() => {
+    //     api.connectWebSocket(sessionId);
+    // }, [sessionId])
+
+    // useEffect(() => {
+    //     api.sendMessage(value);
+    // }, [value])
 
     return (
         <Box
@@ -19,7 +41,7 @@ function InputField() {
                 width: '100%',
             }}
         >
-            <TextField
+            {/* <TextField
                 type='text'
                 label="Введите текст"
                 variant="outlined"
@@ -32,7 +54,7 @@ function InputField() {
                     borderRadius: '0.5rem',
                     width: '100%',
                 }}
-            />
+            /> */}
         </Box>
     );
 }
