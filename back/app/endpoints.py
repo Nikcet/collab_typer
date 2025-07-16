@@ -6,7 +6,7 @@ from sqlmodel import select
 
 from app import logger
 from app.dependencies import get_redis
-from app.database import get_session
+from app.database import get_session, remove_session
 
 router = APIRouter()
 clients = {}
@@ -28,7 +28,6 @@ async def websocket_endpoint(
     websocket: WebSocket, session_id: str, redis=Depends(get_redis)
 ):
     await websocket.accept()
-    print(session_id)
     if session_id not in clients:
         clients[session_id] = set()
     clients[session_id].add(websocket)
@@ -47,6 +46,7 @@ async def websocket_endpoint(
 
             await redis.set(f"session:{session_id}:text", data)
             logger.info(f"Received data: {data}")
+
             # send to all clients in this session
             for client in clients[session_id]:
                 if client != websocket:
@@ -57,3 +57,5 @@ async def websocket_endpoint(
         clients[session_id].remove(websocket)
         if not clients[session_id]:
             del clients[session_id]
+        remove_session(session_id)
+            

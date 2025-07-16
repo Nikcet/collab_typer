@@ -1,6 +1,6 @@
-from sqlmodel import SQLModel, create_engine
+from sqlmodel import SQLModel, create_engine, select
 from fastapi import Depends, HTTPException
-from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
+from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_404_NOT_FOUND
 
 from app.config import get_settings
 from app.models import Session
@@ -36,6 +36,25 @@ def get_session(db=Depends(get_db)) -> Session:
         logger.error(f"Error while create session: {e}")
         raise HTTPException(
             status_code=HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error while create session: {e}"
+            detail=f"Error while create session: {e}",
         )
     return session
+
+
+def remove_session(session_id: str, db=Depends(get_db)):
+    try:
+        statement = select(Session).where(Session.id == session_id)
+        session = db.exec(statement).first()
+        if not session:
+            raise HTTPException(
+                status_code=HTTP_404_NOT_FOUND, detail=f"Session {session_id} not found"
+            )
+        db.remove(session)
+        db.commit()
+        logger.info(f"Session {session_id} removed")
+    except Exception as e:
+        logger.error(f"Error while remove session: {e}")
+        raise HTTPException(
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error while remove session: {e}",
+        )
